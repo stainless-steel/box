@@ -10,11 +10,11 @@
 //! assert_eq!(one.as_ptr(), other.as_ptr());
 //! ```
 
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use std::sync::{OnceLock, RwLock};
 
 #[derive(Default)]
-struct Box(HashSet<&'static str>);
+struct Box(BTreeSet<&'static str>);
 
 /// A unique static string.
 #[derive(Clone, Copy, Ord, PartialOrd)]
