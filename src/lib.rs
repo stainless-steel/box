@@ -1,17 +1,14 @@
 //! Storage for unique static strings.
 
-use std::collections::HashMap;
+use std::collections::HashSet;
 use std::sync::{OnceLock, RwLock};
 
 /// A symbol.
-#[derive(Clone, Copy, Hash)]
-pub struct Symbol(usize);
+#[derive(Clone, Copy, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct Symbol(&'static str);
 
 #[derive(Default)]
-struct State {
-    mapping: HashMap<&'static str, usize>,
-    values: Vec<String>,
-}
+struct State(HashSet<&'static str>);
 
 impl Symbol {
     /// Create a new instance.
@@ -20,27 +17,19 @@ impl Symbol {
         T: AsRef<str> + Into<String>,
     {
         let mut state = State::instance().write().unwrap();
-        if let Some(index) = state.mapping.get(value.as_ref()) {
-            return Self(*index);
+        if let Some(value) = state.0.get(value.as_ref()) {
+            return Self(value);
         }
-        let index = state.values.len();
-        state.values.push(value.into());
-        // String internally contains a buffer allocated on the heap, and borrowing it as a str
-        // references that buffer, not the String. That means that references remain valid when
-        // State grows, and since State can only increase in size, references remain valid more
-        // generally until the program terminates.
-        let value = unsafe { std::mem::transmute(state.values[index].as_str()) };
-        state.mapping.insert(value, index);
-        Self(index)
+        let value = value.into().leak();
+        state.0.insert(value);
+        Self(value)
     }
 }
 
 impl AsRef<str> for Symbol {
     #[inline]
     fn as_ref(&self) -> &str {
-        let state = State::instance().read().unwrap();
-        // See the note above.
-        unsafe { std::mem::transmute(state.values[self.0].as_str()) }
+        self.0
     }
 }
 
@@ -64,14 +53,14 @@ where
 impl std::fmt::Debug for Symbol {
     #[inline]
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Debug::fmt(self.as_ref(), formatter)
+        std::fmt::Debug::fmt(self.0, formatter)
     }
 }
 
 impl std::fmt::Display for Symbol {
     #[inline]
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self.as_ref(), formatter)
+        std::fmt::Display::fmt(self.0, formatter)
     }
 }
 
@@ -80,7 +69,7 @@ impl std::ops::Deref for Symbol {
 
     #[inline]
     fn deref(&self) -> &Self::Target {
-        self.as_ref()
+        self.0
     }
 }
 
@@ -111,7 +100,7 @@ mod serialization {
         where
             T: serde::ser::Serializer,
         {
-            serializer.serialize_str(self.as_ref())
+            serializer.serialize_str(self.0)
         }
     }
 
