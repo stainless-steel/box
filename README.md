@@ -2,6 +2,16 @@
 
 The package provides a storage for unique static strings.
 
+## Example
+
+```rust
+use r#box::Symbol;
+
+let one = Symbol::new("foo");
+let other = Symbol::new("foo");
+assert_eq!(one.as_ptr(), other.as_ptr());
+```
+
 ## Contribution
 
 Your contribution is highly appreciated. Do not hesitate to open an issue or a

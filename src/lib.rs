@@ -1,4 +1,14 @@
 //! Storage for unique static strings.
+//!
+//! ## Example
+//!
+//! ```
+//! use r#box::Symbol;
+//!
+//! let one = Symbol::new("foo");
+//! let other = Symbol::new("foo");
+//! assert_eq!(one.as_ptr(), other.as_ptr());
+//! ```
 
 use std::collections::HashSet;
 use std::sync::{OnceLock, RwLock};
