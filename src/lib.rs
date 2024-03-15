@@ -4,7 +4,7 @@ use std::collections::HashSet;
 use std::sync::{OnceLock, RwLock};
 
 /// A symbol.
-#[derive(Clone, Copy, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Ord, PartialOrd)]
 pub struct Symbol(&'static str);
 
 #[derive(Default)]
@@ -50,6 +50,15 @@ where
     }
 }
 
+impl std::cmp::Eq for Symbol {}
+
+impl std::cmp::PartialEq for Symbol {
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        self.as_ptr() == other.as_ptr()
+    }
+}
+
 impl std::fmt::Debug for Symbol {
     #[inline]
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -61,6 +70,13 @@ impl std::fmt::Display for Symbol {
     #[inline]
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         std::fmt::Display::fmt(self.0, formatter)
+    }
+}
+
+impl std::hash::Hash for Symbol {
+    #[inline]
+    fn hash<T: std::hash::Hasher>(&self, state: &mut T) {
+        self.as_ptr().hash(state)
     }
 }
 
