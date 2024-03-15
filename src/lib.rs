@@ -3,12 +3,12 @@
 use std::collections::HashSet;
 use std::sync::{OnceLock, RwLock};
 
-/// A symbol.
+#[derive(Default)]
+struct Box(HashSet<&'static str>);
+
+/// A unique static string.
 #[derive(Clone, Copy, Ord, PartialOrd)]
 pub struct Symbol(&'static str);
-
-#[derive(Default)]
-struct State(HashSet<&'static str>);
 
 impl Symbol {
     /// Create a new instance.
@@ -16,7 +16,7 @@ impl Symbol {
     where
         T: AsRef<str> + Into<String>,
     {
-        let mut state = State::instance().write().unwrap();
+        let mut state = Box::instance().write().unwrap();
         if let Some(value) = state.0.get(value.as_ref()) {
             return Self(value);
         }
@@ -89,9 +89,9 @@ impl std::ops::Deref for Symbol {
     }
 }
 
-impl State {
+impl Box {
     fn instance() -> &'static RwLock<Self> {
-        static STATE: OnceLock<RwLock<State>> = OnceLock::new();
+        static STATE: OnceLock<RwLock<Box>> = OnceLock::new();
         STATE.get_or_init(|| RwLock::new(Default::default()))
     }
 }
