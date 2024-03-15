@@ -1,0 +1,12 @@
+[package]
+name = "box"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0/MIT"
+authors = ["Ivan Ukhov <ivan.ukhov@gmail.com>"]
+description = "The package provides a storage for unique static strings."
+documentation = "https://docs.rs/box"
+homepage = "https://github.com/stainless-steel/box"
+repository = "https://github.com/stainless-steel/box"
+categories = ["memory-management"]
+keywords = ["symbol"]
