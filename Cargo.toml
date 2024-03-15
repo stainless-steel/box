@@ -10,3 +10,6 @@ homepage = "https://github.com/stainless-steel/box"
 repository = "https://github.com/stainless-steel/box"
 categories = ["memory-management"]
 keywords = ["symbol"]
+
+[dependencies]
+serde = { version = "1", optional = true }
